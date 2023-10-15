@@ -3,9 +3,15 @@
 
 ### 使用方法
 
-![image-20231010182156801](./assets/image-20231010182156801.png)
+#### 正向推理
 
-或者
+![image-20231015161209425](D:\Github Resp\Genshin_Impact_Artificial_Intelligence\image-20231015161209425.png)
 
-![image-20231010182233635](./assets/image-20231010182233635.png)
+#### 反向推理
+
+![image-20231015161307434](D:\Github Resp\Genshin_Impact_Artificial_Intelligence\image-20231015161307434.png)
+
+#### 添加规则
+
+![image-20231015161338984](D:\Github Resp\Genshin_Impact_Artificial_Intelligence\image-20231015161338984.png)
 

@@ -1,0 +1,23 @@
+IF 位于东北部 THEN 蒙德
+IF 位于中部 THEN 璃月
+IF 位于西北 THEN 枫丹
+IF 位于中东 THEN 须弥
+IF 位于岛国 THEN 稻妻
+IF 远程武器 THEN 法器
+IF 近战武器 THEN 单手剑
+IF 远程武器 AND 带羽毛 THEN 弓箭
+IF 参加魔神战争 THEN 魔神
+IF 位于提瓦特外 THEN 旅行者（你自己）
+IF 近战武器 AND 很长 THEN 长柄武器
+IF 稻妻 AND 法器 AND 水属性 AND 治疗 THEN 珊瑚宫心海
+IF 稻妻 AND 长柄武器 AND 雷属性 AND 魔神 THEN 雷电将军
+IF 稻妻 AND 法器 AND 雷属性 AND 伤害提升 THEN 八重神子
+IF 蒙德 AND 魔神 AND 弓箭 AND 风属性 THEN 温迪
+IF 蒙德 AND 治疗 AND 单手剑 AND 火属性 THEN 班尼特
+IF 蒙德 AND 特产探索 AND 法器 AND 火属性 THEN 可莉
+IF 璃月 AND 自身附魔 AND 单手剑 AND 雷属性 THEN 刻晴
+IF 璃月 AND 特产探索 AND 法器 AND 火属性 THEN 烟绯
+IF 璃月 AND 魔神 AND 长柄武器 AND 岩属性 THEN 钟离
+IF 须弥 AND 魔神 AND 法器 AND 草属性 THEN 纳西妲
+IF 须弥 AND 单手剑 AND 草属性 THEN 艾尔海森
+IF 枫丹 AND 魔神 AND 单手剑 AND 水属性 THEN 芙宁娜

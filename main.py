@@ -1,206 +1,223 @@
-# encoding=utf-8
-#
-#  Created by IceCliffs
-#  Date 2023/10/02 07:20
-#  Description @IceCliffs (https://github.com/icecliffs)
-#  Blog        @IceCliffs (https://iloli.moe)
-#
+# -*- coding:utf-8 -*-
+# @Time     : 2023/10/15
+# @Author   : IceCliffs
+# @Github   : https://github.com/icecliffs
+# @Software : PyCharm
+# @File     : main.py
+from typing import Any
 from dataclasses import dataclass
 from PyQt6 import QtWidgets, QtGui
-from PyQt6.QtCore import Qt
-from PyQt6.QtGui import QIcon, QFont, QLinearGradient, QColor, QImage, QPainter
+from PyQt6.QtGui import QIcon
 import sys
 
-from PyQt6.QtWidgets import QLabel
+from PyQt6.QtWidgets import QInputDialog, QMessageBox
 
 
-# 初始化生成式条件
 @dataclass
 class Rules:
     x: set
     y: int
-def initRules():
-    dataSets = {
-        1: "位于东北部",2: "位于中部",3: "位于西北",4: "位于中东",5: "岛国",
-        6: "位于提瓦特外",7: "远程武器",8: "近战武器",9: "很长",10: "水属性",11: "雷属性",12: "草属性",13: "风属性",14: "火属性",15: "岩属性",16: "魔神",17: "治疗",18: "特产探索",19: "自身附魔",20: "伤害提升",21: "单手剑",22: "长柄武器",23: "弓箭",24: "法器",25: "稻妻",26: "蒙德",27: "璃月",28: "须弥",29: "枫丹",30: "艾尔海森",31: "珊瑚宫心海",32: "雷电将军",33: "八重神子",34: "温迪",35: "班尼特",36: "可莉",37: "刻晴",38: "烟绯",39: "钟离",40: "纳西妲",41: "芙宁娜",42: "旅行者（你自己）",43: "带羽毛",44: "参加魔神战争"
-    }
-    # 规则:结论
-    dataRules = [
-        Rules(set([1]), 26),
-        Rules(set([2]), 27),
-        Rules(set([3]), 29),
-        Rules(set([4]), 28),
-        Rules(set([5]), 25),
-        Rules(set([7]), 24),
-        Rules(set([8]), 21),
-        Rules(set([7, 43]), 23),
-        Rules(set([44]), 16),
-        Rules(set([6]), 42),
-        Rules(set([8, 9]), 22),
-        Rules(set([25, 24, 10, 17]), 31),
-        Rules(set([25, 22, 11, 16]), 32),
-        Rules(set([25, 24, 11, 20]), 33),
-        Rules(set([26, 16, 23, 13]), 34),
-        Rules(set([26, 17, 21, 14]), 35),
-        Rules(set([26, 18, 24, 14]), 36),
-        Rules(set([27, 19, 21, 11]), 37),
-        Rules(set([27, 18, 24, 14]), 38),
-        Rules(set([27, 16, 22, 15]), 39),
-        Rules(set([28, 16, 24, 12]), 40),
-        Rules(set([28, 21, 12]), 30),
-        Rules(set([29, 16, 21, 10]), 41)
-    ]
-    # 存储人物
-    personData = [30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43]
-    return dataSets, dataRules, personData
-
-# 添加规则
-def addRules(rules):
-    global dataSets, dataRules, personData
-    dataSets, dataRules, personData = initRules()
-
-
 class MyForm(QtWidgets.QWidget):
+    def processRules(self) -> tuple[list[Any] | list[str], list[Rules], list[Any] | list[str]]:
+        dataSets = []
+        dataRules = []
+        peopleData = []
+        with open('data/condition.txt', mode='r', encoding='gbk') as file:
+            for line in file:
+                dataSets = line.split()
+            file.close()
+        with open('data/datasets.txt', mode='r', encoding='gbk') as file:
+            for line in file:
+                tmp = line.split()
+                conditions = set(tmp[:-1])
+                conclusion = str(tmp[-1])
+                dataRules.append(Rules(x=conditions, y=conclusion))
+            file.close()
+        with open('data/people.txt', mode='r', encoding='gbk') as file:
+            for line in file:
+                peopleData = line.split()
+            file.close()
+        return dataSets, dataRules, peopleData
     def __init__(self):
         # 初始化界面
         super().__init__()
-        self.setWindowTitle('《原神，提瓦特》角色识别')
+        self.setWindowTitle('《原神，提瓦特》人工智能产生式系统')
         self.setWindowIcon(QIcon('./assets/favicon.ico'))
-        self.resize(800, 600)
+        self.resize(890, 600)
         self.setUpdatesEnabled(True)
         self.ui()
-        # 存储放入的规则
         self.rules = []
-        # 使用规则
+        self.rulesReverse = ""
         self.useRules = []
-        # 动态数据库
+        self.useRulesReverse = []
         self.dynamicRules = ""
-        # 存储结果
+        self.dynamicRulesReverse = ""
         self.finalPerson = ""
-    # 对其进行反向推理
-    # def reverseInference(self, rules ...):
-    #
-    # 对其进行正向推理
-    def forwardInference(self, rules):
-        # 存储匹配到的数据长度
-        dataSets, dataRules, personData = initRules()
-        # 存储中间结论
-        middles = [rule.y for rule in dataRules]
-        # 对规则库进行查找
-        for epoch, dataProcess in enumerate(dataRules):
-            num = 0
-            for rule in rules:
-                if rule in list(dataProcess.x) or rule == dataProcess.y:
-                    num += 1
-            # 如果规则库判断规则当中数值相同，则继续查询，看是否为最终结果
-            if num == len(dataProcess.x):
-                if middles[epoch] not in personData:
-                    # 结果
-                    result = middles.pop(epoch)
-                    process = list(dataRules.pop(epoch).x)[0]
-                    # 判断结果是否已经存储在过程中，如果存在重新查找，不存在的话加入过程
-                    if result not in rules:
-                        self.useRules.append(str(dataSets.get(process) + "->" + str(dataSets.get(result))))
-                        condition = self.forwardInference(rules + [result])
-                        if condition == 1:
-                            return 1
-                        else:
-                            return 0
-                    else:
-                        condition = self.forwardInference(rules)
-                        if condition == 1:
-                            return 1
-                        else:
-                            return 0
-                else:
-                    process = dataRules.pop(epoch)
-                    for t in process.x:
-                        self.dynamicRules += (dataSets.get(t) + "->")
-                    self.dynamicRules += dataSets.get(middles[epoch])
-                    self.finalPerson = middles[epoch]
-                    return 1
     def ui(self):
-        # 设置文字
+        a,b,c = self.processRules()
         self.label = QtWidgets.QLabel(self)
-        self.label.move(10, 10)
-        self.label.setText('原来，你也玩原神')
-        self.label.setStyleSheet('font-size:30px; color:#00c')
-        # 设置列表（前提条件）
+        self.label.move(30, 30)
+        self.label.setText('正向推理数据集')
+        self.label.setStyleSheet('font-size:20px; color:#00c')
         self.listWidget = QtWidgets.QListWidget(self)
-        self.listWidget.addItems(
-            ["位于东北部","位于中部","位于西北","位于中东","岛国","位于提瓦特外","远程武器","近战武器","很长","水属性","雷属性","草属性","风属性","火属性","岩属性","参加魔神战争","治疗","特产探索","自身附魔","伤害提升", "带羽毛"]
-        )
+        self.listWidget.addItems(a)
         self.listWidget.setGeometry(30, 60, 150, 300)
-        # 设置按钮（添加条件按钮）
+        self.label = QtWidgets.QLabel(self)
+        self.label.move(210, 30)
+        self.label.setText('反向推理数据集')
+        self.label.setStyleSheet('font-size:20px; color:#00c')
+        self.listWidget1 = QtWidgets.QListWidget(self)
+        self.listWidget1.addItems(c)
+        self.listWidget1.setGeometry(210, 60, 150, 300)
         self.btn = QtWidgets.QPushButton(self)
         self.btn.setText("添加条件")
         self.btn.setGeometry(30, 365, 150, 45)
         self.btn.clicked.connect(self.addToSelected)
-        # 设置列表（前提条件选中）
+        self.btn1 = QtWidgets.QPushButton(self)
+        self.btn1.setText("添加反向条件")
+        self.btn1.setGeometry(210, 365, 150, 45)
+        self.btn1.clicked.connect(self.addToSelectedReverse)
+        self.label = QtWidgets.QLabel(self)
+        self.label.move(30, 415)
+        self.label.setText('输入的条件')
+        self.label.setStyleSheet('font-size:20px; color:#00c')
         self.listWidgetSelected = QtWidgets.QListWidget(self)
-        self.listWidgetSelected.setGeometry(30, 420, 150, 100)
-        # 设置列表（使用规则）
+        self.listWidgetSelected.setGeometry(30, 450, 150, 100)
+        self.label = QtWidgets.QLabel(self)
+        self.label.move(380, 30)
+        self.label.setText('推理过程')
+        self.label.setStyleSheet('font-size:20px; color:#00c')
         self.listWidgetRules = QtWidgets.QListWidget(self)
-        self.listWidgetRules.setGeometry(230, 60, 250, 300)
-        # 设置列表（推导结果）
+        self.listWidgetRules.setGeometry(380, 60, 200, 300)
+        self.label = QtWidgets.QLabel(self)
+        self.label.move(210, 415)
+        self.label.setText('最终推理的结果')
+        self.label.setStyleSheet('font-size:20px; color:#00c')
         self.listWidgetFinal = QtWidgets.QListWidget(self)
-        self.listWidgetFinal.setGeometry(230, 380, 250, 140)
-        # 设置图片（最后结论）
+        self.listWidgetFinal.setGeometry(210, 450, 250, 100)
+        self.label = QtWidgets.QLabel(self)
+        self.label.move(615, 65)
+        self.label.setText('人物图片')
+        self.label.setStyleSheet('font-size:20px; color:#00c')
         self.img = QtWidgets.QGraphicsView(self)
-        self.img.setGeometry(515, 100, 250, 250)
+        self.img.setGeometry(615, 100, 250, 250)
         self.img.setStyleSheet("background: linear-gradient(180deg,#865A2E 0%,#B2732B 100%);")
-        # 设置按钮（自动推理）
         self.autoConsider = QtWidgets.QPushButton(self)
         self.autoConsider.setText("自动推理")
         self.autoConsider.setGeometry(520, 410, 150, 45)
         self.autoConsider.clicked.connect(self.clickToConsider)
-        # 设置按钮（清空）
+        self.addRules = QtWidgets.QPushButton(self)
+        self.addRules.setText('添加规则')
+        self.addRules.setGeometry(680, 410, 150, 45)
+        self.addRules.clicked.connect(self.addRulesForm)
+        self.addRulesReverse = QtWidgets.QPushButton(self)
+        self.addRulesReverse.setText('反向推理')
+        self.addRulesReverse.setGeometry(680, 470, 150, 45)
+        self.addRulesReverse.clicked.connect(self.clickToConsiderReverse)
         self.clearBtn = QtWidgets.QPushButton(self)
         self.clearBtn.setText("清空")
         self.clearBtn.setGeometry(520, 470, 150, 45)
         self.clearBtn.clicked.connect(self.clearToClear)
+    def addRulesForm(self):
+        text, ok = QInputDialog.getText(self, '请输入规则', '格式：a,b,c->d\ne.g：枫丹,单手剑,水属性->龙王')
+        # print(text, ok)
+        if ok:
+            self.addRulesToDataSets(text)
+    def addToSelected(self):
+        selected_items = self.listWidget.selectedItems()
+        for item in selected_items:
+            self.rules.append(item.text())
+            self.listWidgetSelected.addItem(item.text())
+    def addToSelectedReverse(self):
+        selected_items = self.listWidget1.selectedItems()
+        for item in selected_items:
+            self.rulesReverse = (item.text())
+        self.listWidgetSelected.addItem(self.rulesReverse)
+    def clearToClear(self):
+        self.rules = []
+        self.useRules = []
+        self.useRulesReverse = []
+        self.dynamicRulesReverse = []
+        self.dynamicRules = ""
+        self.listWidgetRules.clear()
+        self.listWidgetFinal.clear()
+        self.listWidgetSelected.clear()
+        self.finalPerson = ""
+        self.rulesReverse = ""
+        return
     def clickToConsider(self):
-        if self.rules == None:
-            self.msgBox = QtWidgets.QMessageBox(self)
-            self.msgBox.information(self, '警告', '你没有添加任何规则')
-        dataSets, dataRules, personData = initRules()
-        self.forwardInference(self.rules)
+        self.forward(self.rules)
         for useRule in self.useRules:
             self.listWidgetRules.addItem(useRule)
         self.listWidgetFinal.addItem(self.dynamicRules)
-        result = "推理结果：" + str(dataSets.get(self.finalPerson))
-        # 设置标签（推理结果）
         self.label1 = QtWidgets.QLabel(self)
         self.label1.move(10, 10)
-        self.label1.setText(result)
+        self.label1.setText(self.finalPerson)
         self.label1.setStyleSheet('font-size:100px; color:#00c')
         scene = QtWidgets.QGraphicsScene()
         img = QtGui.QPixmap('./assets/{0}.png'.format(self.finalPerson))
         scene.addPixmap(img)
         self.img.setScene(scene)
-    def clearToClear(self):
-        self.rules = []
-        self.useRules = []
-        self.dynamicRules = []
-
-        self.label1.setText('')
-        self.listWidgetRules.clear()
-        self.listWidgetFinal.clear()
-        self.listWidgetSelected.clear()
-        return
-    def addToSelected(self):
-        selected_items = self.listWidget.selectedItems()
-        for item in selected_items:
-            self.listWidgetSelected.addItem(item.text())
-            index = self.listWidget.row(item)
-            print(index)
-            if index == 20:
-                self.rules.append(43)
-            elif index == 15:
-                self.rules.append(44)
+    def clickToConsiderReverse(self):
+        self.reverse(self.rulesReverse)
+        for useRule in self.useRulesReverse:
+            self.listWidgetRules.addItem(useRule)
+        self.listWidgetFinal.addItem(self.dynamicRulesReverse)
+    def addRulesToDataSets(self, text):
+        print(text)
+        import re
+        if (re.match('^\s*[\w\s,]+->[\w\s,]+\s*$', text)):
+            tmp = str(text).replace(',', ' ').replace('->', ' ')
+            with open('./data/datasets.txt', mode='a', encoding='gbk') as file:
+                file.writelines('\n' + tmp)
+            file.close()
+        else:
+            msg_box = QMessageBox()
+            msg_box.setIcon(QMessageBox.Icon.Warning)
+            msg_box.setWindowTitle("格式错误")
+            msg_box.setText("输入的格式不符合要求。请使用正确的格式：a,b,c->d")
+            msg_box.exec()
+    def reverse(self, person):
+        dataSets, dataRules, peopleData = self.processRules()
+        tmpRule = []
+        for pre, last in enumerate(dataRules):
+            if person in last.y:
+                tmpRule = list(last.x)
+        for last in dataRules:
+            for rule in tmpRule:
+                if rule in last.y and len(last.x) == 1:
+                    self.useRulesReverse.append(f"{person}->{rule}->{list(last.x)[0]}")
+        self.dynamicRulesReverse = f"{person}->{str(','.join(tmpRule))}"
+    def forward(self, rules):
+        dataSets, dataRules, peopleData = self.processRules()
+        middles = [rule.y for rule in dataRules]
+        epoch = 0
+        while epoch < len(dataRules):
+            cnt = 0
+            dataProcess = dataRules[epoch]
+            for rule in rules:
+                if rule in list(dataProcess.x) or rule == dataProcess.y:
+                    cnt += 1
+            if cnt == len(dataProcess.x):
+                self.useRules.append(str(list(dataProcess.x)[0]))
+                if middles[epoch] not in peopleData:
+                    conclusion = middles.pop(epoch)
+                    if conclusion not in rules:
+                        condition = self.forward(rules + [conclusion])
+                    else:
+                        condition = self.forward(rules)
+                    if condition == 1:
+                        return 1
+                    else:
+                        return 0
+                else:
+                    process = dataRules.pop(epoch)
+                    self.dynamicRules = str(','.join(process.x)) + "->" + str(process.y)
+                    self.finalPerson = str(process.y)
+                    return 1
             else:
-                self.rules.append(index + 1)
-
+                epoch += 1
+        return 0
 if __name__ == '__main__':
     app = QtWidgets.QApplication(sys.argv)
     Form = MyForm()
